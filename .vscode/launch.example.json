@@ -1,0 +1,36 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "name": "Launch Go App",
+      "type": "go",
+      "request": "launch",
+      "mode": "debug",
+      "program": "${workspaceFolder}/cmd/api",
+      "env": {
+        "GO_ENV": "local",
+        "PORT": "8080",
+        "DB_SERVER": "localhost",
+        "DB_NAME": "company_store",
+        "DB_USER": "test",
+        "DB_PASSWORD": "test",
+        "DB_CONNECT_TIMEOUT": "45",
+        "DB_MAX_OPEN_CONNECTIONS": "5",
+        "DB_MAX_IDLE_CONNECTIONS": "30",
+        "DB_CONN_MAX_LIFETIME": "60",
+        "DB_PORT": "5432"
+      },
+      "args": [],
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "name": "Debug Current Tests",
+      "type": "go",
+      "request": "launch",
+      "mode": "test",
+      "program": "${file}",
+      "env": {},
+      "args": []
+    }
+  ]
+}
