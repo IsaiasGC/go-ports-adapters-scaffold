@@ -1,9 +1,12 @@
 package data
 
 import (
+	"context"
 	"errors"
+	"time"
 
 	"github.com/IsaiasGC/poc-ports-adapters-scaffold/internal/config"
+	"github.com/IsaiasGC/poc-ports-adapters-scaffold/internal/domain/apperror"
 	"github.com/IsaiasGC/poc-ports-adapters-scaffold/internal/domain/interfaces"
 	"github.com/IsaiasGC/poc-ports-adapters-scaffold/internal/domain/models"
 	"gorm.io/gorm"
@@ -21,35 +24,67 @@ func NewUserRepository(c *config.Configuration, db *gorm.DB) interfaces.UserRepo
 	}
 }
 
-func (r *userRepository) Health(check chan<- *models.ComponentCheck) {
-	// Implement the logic to check database connection health
-	status := models.StatusPass
-	if err := r.checkPing(); err != nil {
-		status = models.StatusFail
-	}
-
-	check <- &models.ComponentCheck{
+func (r *userRepository) HealthCheck(ctx context.Context, check chan<- *models.ComponentCheck) {
+	st := time.Now()
+	health := &models.ComponentCheck{
 		Name:   r.config.Database,
 		Type:   models.TypeDatastore,
-		Status: status,
+		Status: models.StatusPass,
 	}
+
+	if err := r.checkPing(ctx); err != nil {
+		health.Status = models.StatusFail
+		health.Output = err.Error()
+	}
+
+	health.Time = time.Since(st)
+	check <- health
 }
 
-func (r *userRepository) Save(user *models.User) error {
-	// Implement the logic to save the user to the database
+func (r *userRepository) Save(ctx context.Context, model *models.User) error {
+	tx := r.db.WithContext(ctx)
+
+	user := toUserEntity(model)
+	err := tx.Create(user).Error
+	if err != nil {
+		return apperror.NewError(apperror.CodeInternalError,
+			"error saving user",
+			err)
+	}
+
+	model.ID = user.ID
+
 	return nil
 }
 
-func (r *userRepository) FindByID(id string) (*models.User, error) {
-	// Implement the logic to find a user by ID from the database
-	return &models.User{}, nil
+func (r *userRepository) FindByID(ctx context.Context, id string) (*models.User, error) {
+	tx := r.db.WithContext(ctx)
+
+	user := &UserEntity{}
+
+	err := tx.Where("id = ?", id).First(user).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return nil, apperror.NewError(apperror.CodeNotFound,
+				"user not found",
+				err)
+		}
+		return nil, apperror.NewError(apperror.CodeInternalError,
+			"error fetching user",
+			err)
+	}
+
+	return fromUserEntity(user), nil
 }
 
-func (r *userRepository) checkPing() error {
+func (r *userRepository) checkPing(ctx context.Context) error {
 	if r.db == nil {
 		return errors.New("database connection fail")
 	}
-	if pinger, ok := r.db.ConnPool.(interface{ Ping() error }); ok {
+
+	tx := r.db.WithContext(ctx)
+
+	if pinger, ok := tx.ConnPool.(interface{ Ping() error }); ok {
 		return pinger.Ping()
 	}
 

@@ -1,11 +1,20 @@
 package data
 
-import "github.com/IsaiasGC/poc-ports-adapters-scaffold/internal/domain/models"
+import (
+	"time"
+
+	"github.com/IsaiasGC/poc-ports-adapters-scaffold/internal/domain/models"
+)
 
 type UserEntity struct {
-	ID    string `db:"id"`
-	Name  string `db:"name"`
-	Email string `db:"email"`
+	ID        string    `gorm:"id"`
+	Name      string    `gorm:"name"`
+	Email     string    `gorm:"email"`
+	CreatedAt time.Time `gorm:"created_at"`
+}
+
+func (e *UserEntity) TableName() string {
+	return "users"
 }
 
 func toUserEntity(user *models.User) *UserEntity {

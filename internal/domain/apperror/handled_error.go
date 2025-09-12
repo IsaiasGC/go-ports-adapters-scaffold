@@ -12,6 +12,7 @@ const (
 	CodeUnauthorized  CodeError = "UNAUTHORIZED"
 	CodeForbidden     CodeError = "FORBIDDEN"
 	CodeNotFound      CodeError = "NOT_FOUND"
+	CodeHTTPError     CodeError = "HTTP_ERROR"
 	CodeInternalError CodeError = "INTERNAL_ERROR"
 )
 

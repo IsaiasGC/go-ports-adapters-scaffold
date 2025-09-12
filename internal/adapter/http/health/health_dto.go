@@ -1,6 +1,7 @@
 package health
 
 import (
+	"fmt"
 	"time"
 
 	"github.com/IsaiasGC/poc-ports-adapters-scaffold/internal/domain/models"
@@ -14,13 +15,13 @@ type HealthCheckDTO struct {
 }
 
 type ComponentCheckDTO struct {
-	Name          string    `json:"componentName"`
-	Type          string    `json:"componentType"`
-	ObservedValue float64   `json:"observedValue,omitempty"`
-	ObservedUnit  string    `json:"observedUnit,omitempty"`
-	Time          time.Time `json:"time"`
-	Status        string    `json:"status"`
-	Output        string    `json:"output,omitempty"`
+	Name          string  `json:"componentName"`
+	Type          string  `json:"componentType"`
+	ObservedValue float64 `json:"observedValue,omitempty"`
+	ObservedUnit  string  `json:"observedUnit,omitempty"`
+	Time          string  `json:"time" example:"1.025ms"`
+	Status        string  `json:"status"`
+	Output        string  `json:"output,omitempty"`
 }
 
 func toHealthDTO(model *models.HealthCheck) *HealthCheckDTO {
@@ -44,7 +45,7 @@ func toComponentCheckDTO(model models.ComponentCheck) *ComponentCheckDTO {
 		Type:          string(model.Type),
 		ObservedValue: model.ObservedValue,
 		ObservedUnit:  model.ObservedUnit,
-		Time:          model.Time,
+		Time:          fmt.Sprintf("%.3fms", float64(model.Time)/float64(time.Millisecond)),
 		Status:        string(model.Status),
 		Output:        model.Output,
 	}

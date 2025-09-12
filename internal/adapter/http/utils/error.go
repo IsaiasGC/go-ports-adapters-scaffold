@@ -38,7 +38,9 @@ func HandleHTTPError(ctx echo.Context, err error) error {
 		httpError.Message = handledError.Message
 		httpError.Description = handledError.Error()
 	} else if errors.As(err, &echoError) {
-		httpError.Description = echoError.Message.(string)
+		responseStatus = echoError.Code
+		httpError.Code = string(apperror.CodeHTTPError)
+		httpError.Message = echoError.Message.(string)
 	} else {
 		httpError.Description = err.Error()
 	}

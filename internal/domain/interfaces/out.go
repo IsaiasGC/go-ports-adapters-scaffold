@@ -1,14 +1,18 @@
 package interfaces
 
-import "github.com/IsaiasGC/poc-ports-adapters-scaffold/internal/domain/models"
+import (
+	"context"
+
+	"github.com/IsaiasGC/poc-ports-adapters-scaffold/internal/domain/models"
+)
 
 type UserRepository interface {
-	Health(chan<- *models.ComponentCheck)
-	Save(user *models.User) error
-	FindByID(id string) (*models.User, error)
+	HealthCheck(ctx context.Context, check chan<- *models.ComponentCheck)
+	Save(ctx context.Context, user *models.User) error
+	FindByID(ctx context.Context, id string) (*models.User, error)
 }
 
 type MessageProducer interface {
-	Health(chan<- *models.ComponentCheck)
-	Publish(topic string, message []byte) error
+	HealthCheck(ctx context.Context, check chan<- *models.ComponentCheck)
+	Publish(ctx context.Context, topic string, message []byte) error
 }

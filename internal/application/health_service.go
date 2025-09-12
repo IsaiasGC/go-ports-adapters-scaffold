@@ -1,6 +1,8 @@
 package application
 
 import (
+	"context"
+
 	"github.com/IsaiasGC/poc-ports-adapters-scaffold/internal/config"
 	"github.com/IsaiasGC/poc-ports-adapters-scaffold/internal/domain/interfaces"
 	"github.com/IsaiasGC/poc-ports-adapters-scaffold/internal/domain/models"
@@ -30,8 +32,8 @@ func (s *healthService) Check() *models.HealthCheck {
 	}
 }
 
-func (s *healthService) CheckDependencies() *models.HealthCheck {
-	dependencies := s.getHealthDependencies()
+func (s *healthService) CheckDependencies(ctx context.Context) *models.HealthCheck {
+	dependencies := s.getHealthDependencies(ctx)
 
 	return &models.HealthCheck{
 		Version: s.info.Version,
@@ -40,14 +42,14 @@ func (s *healthService) CheckDependencies() *models.HealthCheck {
 	}
 }
 
-func (s *healthService) getHealthDependencies() []*models.ComponentCheck {
+func (s *healthService) getHealthDependencies(ctx context.Context) []*models.ComponentCheck {
 	dependencies := make([]*models.ComponentCheck, 0, TOTAL_DEPENDENCIES)
-	checks := make(chan *models.ComponentCheck, TOTAL_DEPENDENCIES)
 
+	checks := make(chan *models.ComponentCheck, TOTAL_DEPENDENCIES)
 	defer close(checks)
 
-	go s.repo.Health(checks)
-	go s.producer.Health(checks)
+	go s.repo.HealthCheck(ctx, checks)
+	go s.producer.HealthCheck(ctx, checks)
 
 	for len(dependencies) < TOTAL_DEPENDENCIES {
 		if check := <-checks; check != nil {

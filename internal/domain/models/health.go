@@ -14,7 +14,7 @@ type ComponentType string
 
 const (
 	TypeDatastore ComponentType = "datastore"
-	TypeBroker    ComponentType = "borker"
+	TypeBroker    ComponentType = "broker"
 )
 
 type HealthCheck struct {
@@ -30,7 +30,7 @@ type ComponentCheck struct {
 	Status        HealthStatus
 	ObservedValue float64
 	ObservedUnit  string
-	Time          time.Time
+	Time          time.Duration
 	Output        string
 }
 

@@ -26,7 +26,7 @@ func NewServer(c *config.Configuration, l logger.Logger, d *ServerDependencies) 
 }
 
 func (s *Server) Start() error {
-	return s.echo.Start(fmt.Sprintf(":%s", s.config.ProjectInfo.Port))
+	return s.echo.Start(fmt.Sprintf(":%s", s.config.APIConfig.Port))
 }
 
 func (s *Server) NewServerContext(request *http.Request, writer http.ResponseWriter) echo.Context {

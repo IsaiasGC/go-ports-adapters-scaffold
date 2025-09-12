@@ -66,7 +66,7 @@ func (d *database) initializeDBSession(connectionString string) (*gorm.DB, error
 
 	db, err := gorm.Open(postgres.Open(connectionString), &gorm.Config{
 		NamingStrategy: schema.NamingStrategy{
-			NoLowerCase: true,
+			NoLowerCase: false,
 		},
 		Logger: logger.Default.LogMode(logMode),
 	})

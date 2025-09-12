@@ -1,22 +1,27 @@
 package health
 
 import (
+	"context"
 	"net/http"
+	"time"
 
+	"github.com/IsaiasGC/poc-ports-adapters-scaffold/internal/config"
 	"github.com/IsaiasGC/poc-ports-adapters-scaffold/internal/domain/interfaces"
 	"github.com/IsaiasGC/poc-ports-adapters-scaffold/pkg/logger"
 	echo "github.com/labstack/echo/v4"
 )
 
 type HealthHandler struct {
-	service interfaces.HealthService
-	logger  logger.Logger
+	healthTimeout time.Duration
+	logger        logger.Logger
+	service       interfaces.HealthService
 }
 
-func NewHealthHandler(s interfaces.HealthService, l logger.Logger) *HealthHandler {
+func NewHealthHandler(c *config.Configuration, l logger.Logger, s interfaces.HealthService) *HealthHandler {
 	return &HealthHandler{
-		service: s,
-		logger:  l,
+		healthTimeout: c.APIConfig.HealthTimeout,
+		service:       s,
+		logger:        l,
 	}
 }
 
@@ -27,7 +32,10 @@ func (h *HealthHandler) HealthCheck(ctx echo.Context) error {
 }
 
 func (h *HealthHandler) DependenciesHealthCheck(ctx echo.Context) error {
-	health := h.service.CheckDependencies()
+	childCtx, cancel := context.WithTimeout(ctx.Request().Context(), h.healthTimeout)
+	defer cancel()
+
+	health := h.service.CheckDependencies(childCtx)
 
 	return ctx.JSON(http.StatusOK, toHealthDTO(health))
 }

@@ -1,6 +1,8 @@
 package application
 
 import (
+	"context"
+
 	"github.com/IsaiasGC/poc-ports-adapters-scaffold/internal/domain/interfaces"
 	"github.com/IsaiasGC/poc-ports-adapters-scaffold/internal/domain/models"
 	"github.com/IsaiasGC/poc-ports-adapters-scaffold/internal/domain/validations"
@@ -17,18 +19,18 @@ func NewUserService(r interfaces.UserRepository, p interfaces.MessageProducer) i
 	}
 }
 
-func (s *userService) Create(user *models.User) error {
+func (s *userService) Create(ctx context.Context, user *models.User) error {
 	if err := validations.ValidateCreateUser(user); err != nil {
 		return err
 	}
-	if err := s.repo.Save(user); err != nil {
+	if err := s.repo.Save(ctx, user); err != nil {
 		return err
 	}
-	err := s.producer.Publish("user.created", []byte(user.ID))
+	err := s.producer.Publish(ctx, "user.created", []byte(user.ID))
 
 	return err
 }
 
-func (s *userService) GetByID(id string) (*models.User, error) {
-	return s.repo.FindByID(id)
+func (s *userService) GetByID(ctx context.Context, id string) (*models.User, error) {
+	return s.repo.FindByID(ctx, id)
 }
