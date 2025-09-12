@@ -1,0 +1,35 @@
+# Get image of golang
+FROM golang:1.24
+
+# Accept the USER_UID argument
+ARG USER_UID=1000
+
+# Install packages for timezone and certificates
+RUN apt-get update && apt-get install -y tzdata ca-certificates inetutils-ping telnet && rm -rf /var/lib/apt/lists/*
+
+# Add devuser 
+RUN adduser --uid ${USER_UID} --disabled-password --gecos "" --home /home/devuser devuser
+
+# Set environment variables
+ENV TZ="America/Mexico_City"
+
+# Set workdir
+WORKDIR /app
+
+# Change owner
+RUN chown -R devuser .
+
+# Chnage to user
+USER ${USER_UID}:${USER_UID}
+
+# Install delve for debug
+RUN go install github.com/go-delve/delve/cmd/dlv@latest
+
+# Copy dependencies first and install
+COPY --chown=devuser  go.mod go.sum ./
+RUN go get -t ./...
+
+# Copy all from local to image
+COPY --chown=devuser . .
+
+EXPOSE 8080

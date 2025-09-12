@@ -1,0 +1,19 @@
+{
+  "name": "Golang DevContainer",
+  "dockerComposeFile": ["../docker/docker-compose.yml", "./docker-compose.yml"],
+  "service": "app",
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "terminal.integrated.shell.linux": "/bin/bash"
+      },
+      "extensions": [
+        "golang.go", // Go extension for VS Code
+        "ms-azuretools.vscode-docker" // Docker extension for VS Code
+      ]
+    }
+  },
+  "postCreateCommand": "go mod tidy", // Run Go dependency management after creation
+  "workspaceFolder": "/app", // Set the workspace folder to match your WORKDIR
+  "remoteUser": "devuser"
+}

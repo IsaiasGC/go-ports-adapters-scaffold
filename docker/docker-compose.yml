@@ -1,0 +1,77 @@
+name: go-ports-adapters
+services:
+  app:
+    image: go-ports-adapters:0.1.0
+    build:
+      context: ..
+      dockerfile: Dockerfile
+    environment:
+      - GO_ENV=local
+      - DB_SERVER=postgres
+      - DB_PORT=5432
+      - DB_NAME=appdb
+      - DB_USER=devuser
+      - DB_PASSWORD=s3cr3tP455w0rd
+      - DB_CONNECT_TIMEOUT=45
+      - DB_MAX_OPEN_CONNECTIONS=5
+      - DB_MAX_IDLE_CONNECTIONS=30
+      - DB_CONN_MAX_LIFETIME=60
+      - KAFKA_BROKERS=kafka:9092
+    ports:
+      - "8080:8080"
+    networks:
+      - internal
+    depends_on:
+      - postgres
+      - kafka
+
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_USER: devuser
+      POSTGRES_PASSWORD: s3cr3tP455w0rd
+      POSTGRES_DB: appdb
+    ports:
+      - "5432:5432"
+    volumes:
+      - ./postgres/init-database.sh:/docker-entrypoint-initdb.d/init-database.sh
+      - ./postgres/schema.sql:/docker-entrypoint-initdb.d/schema.sql
+      - pgdata:/var/lib/postgresql/data
+    networks:
+      - internal
+
+  kafka:
+    image: confluentinc/cp-kafka:7.6.1
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+      KAFKA_AUTO_CREATE_TOPICS_ENABLE: 'true'
+      KAFKA_LISTENERS: LISTENER_INT://kafka:9092,LISTENER_EXT://kafka:29092
+      KAFKA_ADVERTISED_LISTENERS: LISTENER_INT://kafka:9092,LISTENER_EXT://localhost:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: LISTENER_INT:PLAINTEXT,LISTENER_EXT:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: LISTENER_INT
+    ports:
+      - "9092:9092"
+      - "29092:29092"
+    volumes:
+      - ./kafka/init-kafka.sh:/init-kafka.sh
+    networks:
+      - internal
+    command: ["bash", "/init-kafka.sh"]
+    depends_on:
+      - zookeeper
+
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.6.1
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+    networks:
+      - internal
+
+volumes:
+  pgdata:
+
+networks:
+  internal:
+    driver: bridge
