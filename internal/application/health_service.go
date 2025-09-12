@@ -29,6 +29,13 @@ func (s *healthService) Check() *models.HealthCheck {
 	return &models.HealthCheck{
 		Version: s.info.Version,
 		Status:  models.StatusPass,
+		Checks: []*models.ComponentCheck{
+			{
+				Name:   s.info.Name,
+				Type:   "pod",
+				Status: "pass",
+			},
+		},
 	}
 }
 

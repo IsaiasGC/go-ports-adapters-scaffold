@@ -88,17 +88,23 @@ Server starts on `http://localhost:8080`.
 ### Create User
 
 ```bash
-curl -X POST http://localhost:8080/user \
-  -H "Content-Type: application/json" \
-  -d '{"id":"1", "name":"Isaias"}'
+curl http://localhost:8080/health
 ```
 
 ### Response
 
 ```json
 {
-  "id": "1",
-  "name": "Isaias"
+    "status": "pass",
+    "version": "0.1.0",
+    "checks": [
+        {
+            "componentName": "ports-adapters",
+            "componentType": "pod",
+            "time": "0.000ms",
+            "status": "pass"
+        }
+    ]
 }
 ```
 
@@ -113,7 +119,5 @@ curl -X POST http://localhost:8080/user \
 ## 🛠️ Next Steps
 
 - Add middlewares (logging, auth) in adapter/http.
-
-- Add message broker consumer (adapter/messaging).
 
 ---
