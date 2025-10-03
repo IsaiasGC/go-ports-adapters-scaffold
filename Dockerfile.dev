@@ -25,6 +25,9 @@ USER ${USER_UID}:${USER_UID}
 # Install delve for debug
 RUN go install github.com/go-delve/delve/cmd/dlv@latest
 
+# Install swag for swagger docs
+RUN go install github.com/swaggo/swag/cmd/swag@latest
+
 # Copy dependencies first and install
 COPY --chown=devuser  go.mod go.sum ./
 RUN go get -t ./...

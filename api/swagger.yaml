@@ -1,0 +1,58 @@
+basePath: /api/v1
+definitions:
+  user.UserDTO:
+    properties:
+      email:
+        type: string
+      id:
+        type: integer
+      name:
+        type: string
+    type: object
+host: localhost:8080
+info:
+  contact: {}
+  description: This is a sample server for a users API.
+  title: Users API
+  version: 0.1.0
+paths:
+  /users:
+    post:
+      consumes:
+      - application/json
+      description: create a new user
+      operationId: create-user
+      parameters:
+      - description: User Data
+        in: body
+        name: user
+        required: true
+        schema:
+          $ref: '#/definitions/user.UserDTO'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/user.UserDTO'
+      summary: Create User
+  /users/{id}:
+    get:
+      description: get user by ID
+      operationId: get-user-by-id
+      parameters:
+      - description: User ID
+        in: path
+        name: id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/user.UserDTO'
+      summary: Show User
+swagger: "2.0"

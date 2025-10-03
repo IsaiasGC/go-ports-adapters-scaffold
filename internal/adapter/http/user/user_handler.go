@@ -26,6 +26,14 @@ func NewUserHandler(c *config.Configuration, l logger.Logger, s interfaces.UserS
 	}
 }
 
+// @Summary Create User
+// @Description create a new user
+// @ID create-user
+// @Accept  json
+// @Param user body UserDTO true "User Data"
+// @Produce  json
+// @Success 201 {object} UserDTO
+// @Router /users [post]
 func (h *UserHandler) CreateUser(ctx echo.Context) error {
 	childCtx, cancel := context.WithTimeout(ctx.Request().Context(), h.responseTimeout)
 	defer cancel()
@@ -44,6 +52,13 @@ func (h *UserHandler) CreateUser(ctx echo.Context) error {
 	return ctx.JSON(http.StatusCreated, toUserDTO(userModel))
 }
 
+// @Summary Show User
+// @Description get user by ID
+// @ID get-user-by-id
+// @Param id path int true "User ID"
+// @Produce  json
+// @Success 200 {object} UserDTO
+// @Router /users/{id} [get]
 func (h *UserHandler) GetUserByID(ctx echo.Context) error {
 	childCtx, cancel := context.WithTimeout(ctx.Request().Context(), h.responseTimeout)
 	defer cancel()

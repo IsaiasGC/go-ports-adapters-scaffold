@@ -11,7 +11,8 @@ import (
 
 func isSkipped(c echo.Context) bool {
 	return strings.HasPrefix(c.Path(), "/metrics") ||
-		strings.HasPrefix(c.Path(), "/health")
+		strings.HasPrefix(c.Path(), "/health") ||
+		strings.HasPrefix(c.Path(), "/swagger")
 }
 
 func (s *Server) WithLogger() {
