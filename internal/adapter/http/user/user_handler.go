@@ -34,12 +34,14 @@ func (h *UserHandler) CreateUser(ctx echo.Context) error {
 	if err != nil {
 		return err
 	}
-	err = h.service.Create(childCtx, fromUserDTO(userDto))
+
+	userModel := fromUserDTO(userDto)
+	err = h.service.Create(childCtx, userModel)
 	if err != nil {
 		return err
 	}
 
-	return ctx.NoContent(http.StatusCreated)
+	return ctx.JSON(http.StatusCreated, toUserDTO(userModel))
 }
 
 func (h *UserHandler) GetUserByID(ctx echo.Context) error {
@@ -48,10 +50,10 @@ func (h *UserHandler) GetUserByID(ctx echo.Context) error {
 
 	id := ctx.Param("id")
 
-	user, err := h.service.GetByID(childCtx, id)
+	userModel, err := h.service.GetByID(childCtx, id)
 	if err != nil {
 		return err
 	}
 
-	return ctx.JSON(200, toUserDTO(user))
+	return ctx.JSON(http.StatusOK, toUserDTO(userModel))
 }

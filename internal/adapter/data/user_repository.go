@@ -47,6 +47,11 @@ func (r *userRepository) Save(ctx context.Context, model *models.User) error {
 	user := toUserEntity(model)
 	err := tx.Create(user).Error
 	if err != nil {
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
+			return apperror.NewError(apperror.CodeInvalidParams,
+				"user with this email already exists",
+				err)
+		}
 		return apperror.NewError(apperror.CodeInternalError,
 			"error saving user",
 			err)

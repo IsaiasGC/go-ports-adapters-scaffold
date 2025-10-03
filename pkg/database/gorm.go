@@ -68,7 +68,8 @@ func (d *database) initializeDBSession(connectionString string) (*gorm.DB, error
 		NamingStrategy: schema.NamingStrategy{
 			NoLowerCase: false,
 		},
-		Logger: logger.Default.LogMode(logMode),
+		TranslateError: true,
+		Logger:         logger.Default.LogMode(logMode),
 	})
 	if err != nil {
 		return nil, err

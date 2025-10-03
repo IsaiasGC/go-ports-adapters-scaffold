@@ -9,10 +9,14 @@ import (
 
 func ValidateCreateUser(user *models.User) error {
 	if !strings.Contains(user.Email, "@") {
-		return apperror.ErrInvalidEmail
+		return apperror.NewError(apperror.CodeInvalidParams,
+			"validation error",
+			apperror.ErrInvalidEmail)
 	}
 	if len(user.Name) < 3 {
-		return apperror.ErrNameTooShort
+		return apperror.NewError(apperror.CodeInvalidParams,
+			"validation error",
+			apperror.ErrNameTooShort)
 	}
 	return nil
 }
