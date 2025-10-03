@@ -2,6 +2,7 @@ package application
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/IsaiasGC/poc-ports-adapters-scaffold/internal/domain/interfaces"
 	"github.com/IsaiasGC/poc-ports-adapters-scaffold/internal/domain/models"
@@ -27,9 +28,9 @@ func (s *userService) Create(ctx context.Context, user *models.User) error {
 	if err := s.repo.Save(ctx, user); err != nil {
 		return err
 	}
-	err := s.producer.Publish(ctx, "user.created", []byte(user.ID))
+	go s.producer.Publish(ctx, "user.created", fmt.Appendf(nil, "%d", user.ID))
 
-	return err
+	return nil
 }
 
 func (s *userService) GetByID(ctx context.Context, id string) (*models.User, error) {

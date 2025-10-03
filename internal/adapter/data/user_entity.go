@@ -7,7 +7,7 @@ import (
 )
 
 type UserEntity struct {
-	ID        string    `gorm:"id"`
+	ID        int       `gorm:"id"`
 	Name      string    `gorm:"name"`
 	Email     string    `gorm:"email"`
 	CreatedAt time.Time `gorm:"created_at"`
