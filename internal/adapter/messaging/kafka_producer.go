@@ -12,19 +12,25 @@ import (
 
 const RESOURCE_NAME = "kafka"
 
-type kafkaProducer struct {
+type kafkaRepository struct {
 	config *config.KafkaConfig
+}
+
+type kafkaProducer struct {
+	kafkaRepository
 	writer *kafka.Writer
 }
 
 func NewMessageProducer(c *config.Configuration) interfaces.MessageProducer {
 	return &kafkaProducer{
-		config: c.KafkaConfig,
+		kafkaRepository: kafkaRepository{
+			config: c.KafkaConfig,
+		},
 		writer: getKafkaWriter(c.KafkaConfig),
 	}
 }
 
-func (p *kafkaProducer) HealthCheck(ctx context.Context, check chan<- *models.ComponentCheck) {
+func (r *kafkaRepository) HealthCheck(ctx context.Context, check chan<- *models.ComponentCheck) {
 	st := time.Now()
 	health := &models.ComponentCheck{
 		Name:   RESOURCE_NAME,
@@ -32,7 +38,7 @@ func (p *kafkaProducer) HealthCheck(ctx context.Context, check chan<- *models.Co
 		Status: models.StatusPass,
 	}
 
-	conn, err := kafka.DialContext(ctx, "tcp", p.config.Brokers[0])
+	conn, err := kafka.DialContext(ctx, "tcp", r.config.Brokers[0])
 	if conn != nil {
 		defer conn.Close()
 
@@ -48,8 +54,8 @@ func (p *kafkaProducer) HealthCheck(ctx context.Context, check chan<- *models.Co
 	check <- health
 }
 
-func (p *kafkaProducer) Publish(ctx context.Context, topic string, message []byte) error {
-	err := p.writer.WriteMessages(ctx,
+func (r *kafkaProducer) Publish(ctx context.Context, topic string, message []byte) error {
+	err := r.writer.WriteMessages(ctx,
 		kafka.Message{
 			Topic: topic,
 			Value: message,
@@ -62,9 +68,8 @@ func (p *kafkaProducer) Publish(ctx context.Context, topic string, message []byt
 func getKafkaWriter(config *config.KafkaConfig) *kafka.Writer {
 	return kafka.NewWriter(kafka.WriterConfig{
 		Brokers:      config.Brokers,
-		Topic:        config.HealthTopic,
 		MaxAttempts:  3,
-		Balancer:     &kafka.CRC32Balancer{}, // behaviour as librdkafka's default consistent_random partition strategy
+		Balancer:     &kafka.CRC32Balancer{},
 		BatchSize:    10,
 		BatchTimeout: 1 * time.Millisecond,
 		RequiredAcks: 1,

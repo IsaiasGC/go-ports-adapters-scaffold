@@ -15,7 +15,8 @@ type userService struct {
 
 func NewUserService(r interfaces.UserRepository, p interfaces.MessageProducer) interfaces.UserService {
 	return &userService{
-		repo: r,
+		repo:     r,
+		producer: p,
 	}
 }
 

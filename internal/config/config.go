@@ -34,6 +34,5 @@ type DBConfig struct {
 }
 
 type KafkaConfig struct {
-	Brokers     []string `env:"KAFKA_BROKERS,required"`
-	HealthTopic string   `env:"KAFKA_HEALTH_TOPIC,default=healtcheck-topic"`
+	Brokers []string `env:"KAFKA_BROKERS,required"`
 }
